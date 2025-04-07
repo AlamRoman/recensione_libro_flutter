@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'Recensione.g.dart';
+part 'recensione.g.dart';
 
 @JsonSerializable()
 class Recensione {
