@@ -1,5 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
+part 'Recensione.g.dart';
+
 @JsonSerializable()
 class Libro {
   int id;
