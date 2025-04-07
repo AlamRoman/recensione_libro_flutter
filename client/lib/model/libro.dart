@@ -1,9 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'Recensione.g.dart';
+part 'libro.g.dart';
 
 @JsonSerializable()
-class libro {
+class Libro {
   int id;
   String titolo;
   String? autore;
