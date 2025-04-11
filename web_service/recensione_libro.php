@@ -144,9 +144,9 @@
 
                     if ($result->num_rows > 0) {
 
-                        while($book = $result->fetch_assoc()){
-                            $responseData[] = $book;
-                        }
+                        $book = $result->fetch_assoc();
+
+                        $responseData[] = $book;
 
                         $status_code = 200; //OK
                         
@@ -240,8 +240,8 @@
                         $result = $stmt->get_result();
 
                         //put all the reviews in the response
-                        while($book = $result->fetch_assoc()){
-                            $responseData[] = $book;
+                        while($review = $result->fetch_assoc()){
+                            $responseData[] = $review;
                         }
 
                         $status_code = 200; //OK
@@ -297,9 +297,9 @@
 
                     if ($result->num_rows > 0) {
 
-                        while($book = $result->fetch_assoc()){
-                            $responseData[] = $book;
-                        }
+                        $review = $result->fetch_assoc();
+
+                        $responseData[] = $review;
 
                         $status_code = 200; //OK
                         
@@ -317,6 +317,77 @@
                     $responseData = [
                         "status"  => "error",
                         "message" => "ID recensione non presente nella richiesta"
+                    ];
+                }
+
+            } else{
+                $responseData = [
+                    "status"  => "error",
+                    "message" => "Unauthorized"
+                ];
+                $status_code = 401; // unauthorized
+            }
+
+        }else if ($OPERATION == "list_all_users"){
+
+            if ($token !== null && validate_token($token)){
+
+                //get all users
+                $sql = "SELECT * FROM users";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                //put all the books in the response
+                while($user = $result->fetch_assoc()){
+                    $responseData[] = $user;
+                }
+
+                $status_code = 200; //OK
+
+            }else{
+                $responseData = [
+                    "status"  => "error",
+                    "message" => "Unauthorized"
+                ];
+                $status_code = 401; // unauthorized
+            }
+        }else if ($OPERATION == "get_user_details"){
+
+            if ($token !== null && validate_token($token)){
+
+                if (isset($_GET["id_user"])) {
+
+                    $id_user = $_GET["id_user"];
+
+                    $sql = "SELECT * FROM users WHERE id = ?";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("i", $id_user);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+
+                    if ($result->num_rows > 0) {
+
+                        $user = $result->fetch_assoc();
+
+                        $responseData[] = $user;
+
+                        $status_code = 200; //OK
+                        
+                    }else{
+                        $responseData = [
+                            "status"  => "error",
+                            "message" => "Utente non trovato"
+                        ];
+                        $status_code = 404;
+                    }
+                    
+                }else{
+                    $status_code = 400; // bad request
+
+                    $responseData = [
+                        "status"  => "error",
+                        "message" => "ID utente non presente nella richiesta"
                     ];
                 }
 
@@ -889,6 +960,8 @@
 
     if ($CONTENT_TYPE === "application/xml") {
 
+        header("Content-Type: application/xml"); //set content type
+
         if ($OPERATION == "list_books" && $status_code == 200) { //check type of operation
             $xmlResponse = new SimpleXMLElement('<Libri/>'); //create libri xml and adapts child element to be type libro
 
@@ -899,6 +972,7 @@
                 }
             }
             echo $xmlResponse->asXML(); //print the response
+
         }else if ($OPERATION == "list_user_reviews" && $status_code == 200) { //check type of operation
             $xmlResponse = new SimpleXMLElement('<Recensioni/>'); //create recensioni xml and adapts child element to be type recensione
 
@@ -909,8 +983,9 @@
                 }
             }
             echo $xmlResponse->asXML(); //print the response
+
         }else{
-            header("Content-Type: application/xml"); //set content type
+
             $xmlResponse = new SimpleXMLElement('<response/>'); //create response xml
             array_to_xml($responseData, $xmlResponse); //convert data to xml
 
