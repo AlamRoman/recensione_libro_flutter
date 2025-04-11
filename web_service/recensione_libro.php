@@ -937,6 +937,46 @@
                 $status_code = 401; // unauthorized
             }
 
+        }if($OPERATION == "delete_user_account"){
+
+            if ($token !== null && validate_token($token)){
+
+                $id_user = get_user_id_by_token($token);
+
+                $sql = "DELETE FROM users WHERE id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $id_user);
+
+                try {
+                    $stmt->execute();
+
+                    $sql = "DELETE FROM recensione WHERE id_user = ?";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("i", $id_user);
+                    $stmt->execute();
+
+                    $responseData = [
+                        "status"  => "success",
+                        "message" => "Account eliminato con successo"
+                    ];
+                    $status_code = 200; //OK
+                    
+                } catch (mysqli_sql_exception $e) {
+                    $responseData = [
+                        "status"  => "error",
+                        "message" => "Errore durante l'eliminazione dell'account"
+                    ];
+                    $status_code = 500; // internal server error
+                }
+
+            } else{
+                $responseData = [
+                    "status"  => "error",
+                    "message" => "Unauthorized"
+                ];
+                $status_code = 401; // unauthorized
+            }
+
         } else {// not found
             $status_code = 404;
 
@@ -980,6 +1020,17 @@
                 $recensioneNode = $xmlResponse->addChild('Recensione'); 
                 foreach ($recensione as $key => $value) {
                     $recensioneNode->addChild($key, htmlspecialchars($value));
+                }
+            }
+            echo $xmlResponse->asXML(); //print the response
+
+        }else if ($OPERATION == "list_all_users" && $status_code == 200) { //check type of operation
+            $xmlResponse = new SimpleXMLElement('<Utenti/>'); //create utenti xml and adapts child element to be type utente
+
+            foreach ($responseData as $utente) {
+                $utenteNode = $xmlResponse->addChild('Utente'); 
+                foreach ($utente as $key => $value) {
+                    $utenteNode->addChild($key, htmlspecialchars($value));
                 }
             }
             echo $xmlResponse->asXML(); //print the response
