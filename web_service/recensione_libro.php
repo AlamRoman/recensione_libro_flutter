@@ -61,6 +61,11 @@
         return -1;
     }
 
+    //header per flutter
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET,PUT,PATCH,POST,DELETE');
+    header('Access-Control-Allow-Headers: Origin,X-Requested-With,Content-Type,Accept'); 
+
     $CONTENT_TYPE = $_SERVER["CONTENT_TYPE"] ?? "application/xml"; // default content type xml
     $METHOD = $_SERVER['REQUEST_METHOD'];
     $OPERATION = ws_operation($_SERVER['REQUEST_URI']);
@@ -123,6 +128,53 @@
          * @response 200 OK
          * @response 401 Unauthorized
          */
+        }else if ($OPERATION == "get_book_details"){
+
+            if ($token !== null && validate_token($token)){
+
+                if (isset($_GET["id_libro"])) {
+
+                    $id_libro = $_GET["id_libro"];
+
+                    $sql = "SELECT * FROM libro WHERE id = ?";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("i", $id_libro);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+
+                    if ($result->num_rows > 0) {
+
+                        while($book = $result->fetch_assoc()){
+                            $responseData[] = $book;
+                        }
+
+                        $status_code = 200; //OK
+                        
+                    }else{
+                        $responseData = [
+                            "status"  => "error",
+                            "message" => "Libro non trovato"
+                        ];
+                        $status_code = 404;
+                    }
+                    
+                }else{
+                    $status_code = 400; // bad request
+
+                    $responseData = [
+                        "status"  => "error",
+                        "message" => "ID libro non presente nella richiesta"
+                    ];
+                }
+
+            } else{
+                $responseData = [
+                    "status"  => "error",
+                    "message" => "Unauthorized"
+                ];
+                $status_code = 401; // unauthorized
+            }
+
         } else if ($OPERATION == "list_user_reviews"){
 
             if ($token !== null && validate_token($token)){
@@ -228,6 +280,54 @@
          * @response 200 OK
          * @response 400 Bad Request
          */
+        }else if ($OPERATION == "get_review_details"){
+
+
+            if ($token !== null && validate_token($token)){
+
+                if (isset($_GET["id_recensione"])) {
+
+                    $id_recensione = $_GET["id_recensione"];
+
+                    $sql = "SELECT * FROM recensione WHERE id = ?";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("i", $id_recensione);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+
+                    if ($result->num_rows > 0) {
+
+                        while($book = $result->fetch_assoc()){
+                            $responseData[] = $book;
+                        }
+
+                        $status_code = 200; //OK
+                        
+                    }else{
+                        $responseData = [
+                            "status"  => "error",
+                            "message" => "Recensione non trovata"
+                        ];
+                        $status_code = 404;
+                    }
+                    
+                }else{
+                    $status_code = 400; // bad request
+
+                    $responseData = [
+                        "status"  => "error",
+                        "message" => "ID recensione non presente nella richiesta"
+                    ];
+                }
+
+            } else{
+                $responseData = [
+                    "status"  => "error",
+                    "message" => "Unauthorized"
+                ];
+                $status_code = 401; // unauthorized
+            }
+
         } else if ($OPERATION == "validate_token"){
 
             if (isset($_GET["token"])) {
@@ -272,7 +372,7 @@
             ];
         }
 
-    }else if ($METHOD == "POST") { //create
+    } else if ($METHOD == "POST") { //create
 
         /**
          * Operation: register
