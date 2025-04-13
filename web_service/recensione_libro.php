@@ -699,8 +699,8 @@
          * Edit an existing review. The user can update the rating and/or comment of a review already present in the system.
          * 
          * @param int $id_recensione ID of the review to update
-         * @param string $voto Rating to update (optional)
-         * @param string $commento Comment to update (optional)
+         * @param string $voto Rating to update
+         * @param string $commento Comment to update
          * @response 200 OK
          * @response 400 Bad Request
          * @response 401 Unauthorized
@@ -746,6 +746,144 @@
                     }
                     
                 }else if($CONTENT_TYPE === "application/json"){ //json data
+
+                    $data = json_decode($input, true);
+
+                    if ($data === null) {
+                        http_response_code(400); //bad request
+                        echo json_encode(["status" => "error", "message" => "Invalid JSON format"]);
+                        exit;
+                    }
+
+                    $id_recensione = $data["id_recensione"];
+                    $voto = $data["voto"] ?? null;
+                    $commento = $data["commento"] ?? null;
+
+                    if(empty($id_recensione)){
+                        
+                        http_response_code(400); // bad request
+                        echo json_encode(["status" => "error", "message" => "I parametri della richiesta sono vuoti"]);
+                        exit;
+                    }
+                }
+
+                //controlla se la recensione fatta dall'utente esiste
+                $sql = "SELECT * FROM recensione WHERE id = ? AND id_user = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("ii", $id_recensione, $id_user);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+
+                    $sql = "UPDATE recensione SET voto = ?, commento = ?, data_ultima_modifica = ? WHERE id = ?";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("sssi", $voto, $commento, $data_ultima_modifica, $id_recensione);
+
+                    if ($stmt->execute()) {
+
+                        $responseData = [
+                            "status"  => "success",
+                            "message" => "Recensione modificata con successo!"
+                        ];
+                        $status_code = 200; // OK
+                        
+                    }else{
+                        $responseData = [
+                            "status"  => "error",
+                            "message" => "Errore durante la modifica della recensione!"
+                        ];
+                        $status_code = 500; // internal server error
+                    }
+                    
+                }else{// recensione inesistente o utente non autorizzato
+
+                    $sql = "SELECT * FROM recensione WHERE id = ?";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("i", $id_recensione);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+
+                    if ($result->num_rows > 0) {
+
+                        $responseData = [
+                            "status"  => "error",
+                            "message" => "La recensione non è stata fatta da te"
+                        ];
+                        $status_code = 401; // unauthorized
+                        
+                    }else{
+
+                        $responseData = [
+                            "status"  => "error",
+                            "message" => "Recensione inesistente"
+                        ];
+                        $status_code = 400; // bad request
+
+                    }
+
+                }
+
+            } else{//token non valido
+
+                $responseData = [
+                    "status"  => "error",
+                    "message" => "Unauthorized"
+                ];
+                $status_code = 401; // unauthorized
+            }
+
+        } else {// operation not found
+            $status_code = 404;
+
+            $responseData = [
+                "status"  => "error",
+                "message" => "Operation not found"
+            ];
+        }
+    
+    }else if($METHOD == "PATCH") { //update
+
+        if($OPERATION == "update_recensione_parzialmente"){
+
+            if ($token !== null && validate_token($token)){
+
+                $input = file_get_contents("php://input");
+
+                $id_recensione = "";
+                $id_user = "";
+                $voto = "";
+                $commento = "";
+
+                //prendi l'id del user con il suo token
+                $id_user = get_user_id_by_token($token);
+
+                $data_ultima_modifica = date('Y-m-d H:i:s');
+
+                if ($CONTENT_TYPE === "application/xml") {// xml data
+
+                    libxml_use_internal_errors(true);
+                    $xml = simplexml_load_string($input);
+
+                    if (!$xml) {
+                        http_response_code(400); // bad request
+                        header("Content-Type: application/xml");
+                        echo "<response><status>error</status><message>Invalid XML format</message></response>";
+                        exit;
+                    }
+
+                    $id_recensione = (int) $xml->id_recensione;
+                    $voto = (string) $xml->voto;
+                    $commento = (string) $xml->commento;
+
+                    if (empty($id_recensione)) {
+                        http_response_code(400); // bad request
+                        header("Content-Type: application/xml");
+                        echo "<response><status>error</status><message>I parametri della richiesta sono vuoti</message></response>";
+                        exit;
+                    }
+                    
+                }else if($CONTENT_TYPE === "application/json"){ // json data
 
                     $data = json_decode($input, true);
 
@@ -864,7 +1002,130 @@
                 $status_code = 401; // unauthorized
             }
 
-        } else {// operation not found
+
+        /**
+         * Operation: update_user_details
+         * 
+         * Update user details (name, surname) using the token.
+         * 
+         * @param string $nome Name of the user
+         * @param string $cognome Surname of the user
+         * @response 200 OK
+         * @response 400 Bad Request
+         * @response 401 Unauthorized
+         * @response 500 Internal Server Error
+         */
+        } else if($OPERATION == "update_user_details"){
+
+            if ($token !== null && validate_token($token)){
+
+                $input = file_get_contents("php://input");
+                $id_user = get_user_id_by_token($token);
+
+                $nome = "";
+                $cognome = "";
+
+                if ($CONTENT_TYPE === "application/xml") {// xml data
+
+                    libxml_use_internal_errors(true);
+                    $xml = simplexml_load_string($input);
+
+                    if (!$xml) {
+                        http_response_code(400); // bad request
+                        header("Content-Type: application/xml");
+                        echo "<response><status>error</status><message>Formato XML non valido</message></response>";
+                        exit;
+                    }
+
+                    $nome = (string) $xml->nome;
+                    $cognome = (string) $xml->cognome;
+                    
+                }else if($CONTENT_TYPE === "application/json"){ //json data
+
+                    $data = json_decode($input, true);
+
+                    if ($data === null) {
+                        http_response_code(400); //bad request
+                        echo json_encode(["status" => "error", "message" => "Formato JSON non valido"]);
+                        exit;
+                    }
+
+                    $nome = $data["nome"] ?? null;
+                    $cognome = $data["cognome"] ?? null;
+
+                }
+
+                //controlla se la recensione fatta dall'utente esiste
+                $sql = "SELECT * FROM users WHERE id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $id_user);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+
+                    $msg = "";
+                    $no_error = true;
+
+                    if (!empty($nome)) { //update nome
+
+                        $sql = "UPDATE users SET nome = ? WHERE id = ?";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("si", $nome, $id_user);
+
+                        if ($stmt->execute()) {
+                            $msg = "Nome modificato con successo";
+                        }else{
+                            $msg = "Nome non modificato";
+                            $no_error = false;
+                        }
+                    }
+
+                    if (!empty($cognome)) { //update cognome
+
+                        if(!empty($nome)){
+                            $msg .= ", ";
+                        }
+                        
+                        $sql = "UPDATE users SET cognome = ? WHERE id = ?";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("si", $cognome, $id_user);
+
+                        if ($stmt->execute()) {
+                            $msg .= "cognome modificato con successo";
+                        }else{
+                            $msg .= "cognome non modificato";
+                            $no_error = false;
+                        }
+                    }
+
+                    if ($no_error) {
+
+                        $responseData = [
+                            "status"  => "success",
+                            "message" => "Modifica dati dell'utente: $msg"
+                        ];
+                        $status_code = 200; // OK
+                        
+                    }else{
+                        $responseData = [
+                            "status"  => "error",
+                            "message" => "Modifica dati dell'utente: $msg"
+                        ];
+                        $status_code = 500; // internal server error
+                    }
+                    
+                }else{//utente inesistente
+
+                    $responseData = [
+                        "status"  => "error",
+                        "message" => "Utente inesistente"
+                    ];
+                    $status_code = 400; // bad request
+                }
+            }
+        }else{
+            // not found
             $status_code = 404;
 
             $responseData = [
@@ -872,7 +1133,7 @@
                 "message" => "Operation not found"
             ];
         }
-    
+
     }else if ($METHOD == "DELETE") { //delete
 
         /**
@@ -937,7 +1198,7 @@
                 $status_code = 401; // unauthorized
             }
 
-        }if($OPERATION == "delete_user_account"){
+        } else if($OPERATION == "delete_user_account"){
 
             if ($token !== null && validate_token($token)){
 
@@ -998,7 +1259,7 @@
     //set response code
     http_response_code($status_code);
 
-    if ($CONTENT_TYPE === "application/xml") {
+    if ($CONTENT_TYPE === "application/xml") {// XML response
 
         header("Content-Type: application/xml"); //set content type
 
@@ -1044,7 +1305,7 @@
         }
         
 
-    } else {
+    } else { // JSON response
 
         header("Content-Type: application/json"); //set content type
 
