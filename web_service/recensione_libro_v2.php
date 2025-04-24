@@ -7,12 +7,6 @@
 
     $conn = new mysqli( $hostname, $username, $password, $database);
 
-    function ws_operation($uri){
-        $uri_arr = parse_url($uri);
-        $path = explode("/", $uri_arr['path']);
-        return $path[count($path)-1];
-    }
-
     function array_to_xml($data, &$xml_data) {
         foreach($data as $key => $value) {
             if (is_array($value)) {
@@ -68,7 +62,7 @@
 
     $CONTENT_TYPE = $_SERVER["CONTENT_TYPE"] ?? "application/xml"; // default content type xml
     $METHOD = $_SERVER['REQUEST_METHOD'];
-    $OPERATION = ws_operation($_SERVER['REQUEST_URI']);
+    $OPERATION = $_GET["OPERATION"] ?? "";
 
     $headers = getallheaders();
     $token = $headers["Auth-Token"] ?? null; //get the auth token from the header

@@ -1,0 +1,26 @@
+RewriteEngine On
+RewriteBase /web_service/recensione_libro/
+
+# Rewrite rules with id
+RewriteRule ^book/details/([0-9]+)$ recensione_libro_v2.php?OPERATION=get_book_details&id_libro=$1 [L,QSA]
+RewriteRule ^book/reviews/([0-9]+)$ recensione_libro_v2.php?OPERATION=list_reviews_by_book&id_libro=$1 [L,QSA]
+
+RewriteRule ^review/details/([0-9]+)$ recensione_libro_v2.php?OPERATION=get_review_details&id_recensione=$1 [L,QSA]
+RewriteRule ^review/update/([0-9]+)$ recensione_libro_v2.php?OPERATION=update_recensione&id_recensione=$1 [L,QSA]
+RewriteRule ^review/partial_update/([0-9]+)$ recensione_libro_v2.php?OPERATION=update_recensione_parzialmente [L,QSA]
+RewriteRule ^review/delete/([0-9]+)$ recensione_libro_v2.php?OPERATION=delete_recensione&id_recensione=$1 [L,QSA]
+
+RewriteRule ^user/details/([0-9]+)$ recensione_libro_v2.php?OPERATION=get_user_details&id_user=$1 [L,QSA]
+
+RewriteRule ^token/validate/([a-zA-Z0-9]+)$ recensione_libro_v2.php?OPERATION=validate_token&token=$1 [L,QSA]
+
+# Rewrite standard endpoints
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(list_books|list_user_reviews|list_all_users|register|create_recensione|update_user_details|delete_user_account)$ recensione_libro_v2.php?OPERATION=$1 [L,QSA]
+
+
+# CORS headers
+Header always set Access-Control-Allow-Origin "*"
+Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Auth-Token"
