@@ -168,7 +168,17 @@
                 ];
                 $status_code = 401; // unauthorized
             }
-
+        /**
+         * Operation: list_user_reviews
+         * 
+         * Returns all reviews associated with a user identified by ID.
+         * 
+         * @param int $id_libro ID of the book to return reviews for
+         * @return array List of user reviews
+         * @response 200 OK
+         * @response 400 Bad Request
+         * @response 401 Unauthorized
+         */
         } else if ($OPERATION == "list_user_reviews"){
 
             if ($token !== null && validate_token($token)){
@@ -266,13 +276,17 @@
             }
         
         /**
-         * Operation: validate_token
+         * Operation: get_review_details
          * 
-         * Checks whether a provided token is valid.
+         * Returns the details of a specified review.
          * 
          * @param string $token Token to validate
+         * @param int $id_recensione Id of the review
+         * @return object review details
          * @response 200 OK
          * @response 400 Bad Request
+         * @response 401 Unauthorized
+         * @response 404 Operation not found
          */
         }else if ($OPERATION == "get_review_details"){
 
@@ -322,6 +336,18 @@
                 $status_code = 401; // unauthorized
             }
 
+        /**
+         * Operation: list_all_users
+         * 
+         * Return the list of all the users.
+         * 
+         * @param string $token Token to validate
+         * @return array User list
+         * @response 200 OK
+         * @response 400 Bad Request
+         * @response 401 Unauthorized
+         * @response 404 Operation not found
+         */
         }else if ($OPERATION == "list_all_users"){
 
             if ($token !== null && validate_token($token)){
@@ -346,6 +372,19 @@
                 ];
                 $status_code = 401; // unauthorized
             }
+        /**
+         * Operation: get_user_details
+         * 
+         * Returns the details of a specified user.
+         * 
+         * @param string $token Token to validate
+         * @param int $id_user Id of the user
+         * @return object user details
+         * @response 200 OK
+         * @response 400 Bad Request
+         * @response 401 Unauthorized
+         * @response 404 Operation not found
+         */
         }else if ($OPERATION == "get_user_details"){
 
             if ($token !== null && validate_token($token)){
@@ -393,6 +432,15 @@
                 $status_code = 401; // unauthorized
             }
 
+        /**
+         * Operation: validate_token
+         * 
+         * Checks whether a provided token is valid.
+         * 
+         * @param string $token Token to validate
+         * @response 200 OK
+         * @response 400 Bad Request
+         */
         } else if ($OPERATION == "validate_token"){
 
             if (isset($_GET["token"])) {
@@ -837,7 +885,18 @@
         }
     
     }else if($METHOD == "PATCH") { //update
-
+        /**
+         * Operation: update_recensione_parzialmente
+         * 
+         * Partially updates (voto, commento) the review.
+         * 
+         * @param string $voto review grade
+         * @param string $commento review comment
+         * @response 200 OK
+         * @response 400 Bad Request
+         * @response 401 Unauthorized
+         * @response 500 Internal Server Error
+         */
         if($OPERATION == "update_recensione_parzialmente"){
 
             if ($token !== null && validate_token($token)){
@@ -1192,6 +1251,17 @@
                 $status_code = 401; // unauthorized
             }
 
+        /**
+         * Operation: delete_user_account
+         * 
+         * Delete a user from the system.
+         *
+         *  @param int $id_user ID of the user to delete
+         * @response 200 OK
+         * @response 400 Bad Request
+         * @response 401 Unauthorized
+         * @response 500 Internal Server Error
+         */
         } else if($OPERATION == "delete_user_account"){
 
             if ($token !== null && validate_token($token)){
