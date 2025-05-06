@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gestione_recensioni/main.dart';
+import 'package:ink_review/main.dart';
 
 class FormatSelectionScreen extends StatelessWidget {
   const FormatSelectionScreen({super.key});

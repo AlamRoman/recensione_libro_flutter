@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gestione_recensioni/main.dart';
+import 'package:ink_review/main.dart';
+import 'package:ink_review/view/login_screen.dart';
+import 'package:ink_review/view/register_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -16,11 +18,11 @@ class HomeScreen extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => navController.goToRegister(),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const RegisterScreen())),
             child: const Text('Registrati', style: TextStyle(color: Colors.white)),
           ),
           TextButton(
-            onPressed: () => navController.goToLogin(),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const LoginScreen())),
             child: const Text('Login', style: TextStyle(color: Colors.white)),
           ),
         ],
