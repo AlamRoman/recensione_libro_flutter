@@ -51,8 +51,8 @@ class LoginScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(15),
-                            boxShadow: [
-                              const BoxShadow(
+                            boxShadow: const [
+                              BoxShadow(
                                 color: Colors.deepPurple,
                                 blurRadius: 15,
                                 offset: Offset(0, 5),
@@ -136,9 +136,9 @@ class LoginScreen extends StatelessWidget {
                             Navigator.pushNamed(context, '/register');
                           },
                           child: RichText(
-                            text: TextSpan(
+                            text: const TextSpan(
                               text: 'Don\'t have an account? ',
-                              style: const TextStyle(color: Colors.white70),
+                              style: TextStyle(color: Colors.white70),
                               children: [
                                 TextSpan(
                                   text: 'Register',

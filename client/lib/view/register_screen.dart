@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ink_review/main.dart';
-import 'package:ink_review/view/home_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -158,11 +156,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [
+        boxShadow: const [
            BoxShadow(
             color: Colors.deepPurple,
             blurRadius: 15,
-            offset: const Offset(0, 5),
+            offset: Offset(0, 5),
           ),
         ],
       ),
