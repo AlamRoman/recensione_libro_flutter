@@ -117,7 +117,7 @@ class LoginScreen extends StatelessWidget {
                                 final response = await http.get(
                                   url,
                                   headers: {
-                                    'Content-Type': contentType,
+                                    'Content-Type': globalContentType,
                                   },
                                 );
 
@@ -246,9 +246,9 @@ class _ContentTypeDropdownState extends State<_ContentTypeDropdown> {
               selected = value!;
 
               if (value == "XML") {
-                contentType = "application/xml";
+                globalContentType = "application/xml";
               }else{
-                contentType = "application/json";
+                globalContentType = "application/json";
               }
               
             });

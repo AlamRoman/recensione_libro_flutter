@@ -13,9 +13,8 @@ Libro _$LibroFromJson(Map<String, dynamic> json) => Libro(
       descrizione: json['descrizione'] as String?,
       isbn: json['isbn'] as String,
       genere: json['genere'] as String?,
-      anno_pubblicazione: json['anno_pubblicazione'] == null
-          ? null
-          : DateTime.parse(json['anno_pubblicazione'] as String),
+      anno_pubblicazione:
+          Libro._fromJsonDate(json['anno_pubblicazione'] as String?),
     );
 
 Map<String, dynamic> _$LibroToJson(Libro instance) => <String, dynamic>{
@@ -25,5 +24,5 @@ Map<String, dynamic> _$LibroToJson(Libro instance) => <String, dynamic>{
       'descrizione': instance.descrizione,
       'isbn': instance.isbn,
       'genere': instance.genere,
-      'anno_pubblicazione': instance.anno_pubblicazione?.toIso8601String(),
+      'anno_pubblicazione': Libro._toJsonDate(instance.anno_pubblicazione),
     };

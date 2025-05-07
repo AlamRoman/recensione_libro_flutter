@@ -10,6 +10,8 @@ class Libro {
   String? descrizione;
   String isbn;
   String? genere;
+
+  @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
   DateTime? anno_pubblicazione;
 
   Libro({
@@ -23,6 +25,17 @@ class Libro {
   });
 
   factory Libro.fromJson(Map<String, dynamic> json) => _$LibroFromJson(json);
-
   Map<String, dynamic> toJson() => _$LibroToJson(this);
+
+  static DateTime? _fromJsonDate(String? date) {
+    if (date == null) return null;
+    try {
+      return DateTime.parse(date); // expects 'yyyy-MM-dd' or ISO 8601
+    } catch (_) {
+      // Try other formats if needed
+      return null;
+    }
+  }
+
+  static String? _toJsonDate(DateTime? date) => date?.toIso8601String();
 }

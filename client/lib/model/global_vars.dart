@@ -1,3 +1,3 @@
 
-var contentType = "XML";
+String globalContentType = "XML";
 var userToken = "";
