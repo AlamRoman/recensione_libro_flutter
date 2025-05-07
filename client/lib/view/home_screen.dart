@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ink_review/view/login_screen.dart';
-import 'package:ink_review/view/register_screen.dart';
+import 'package:ink_review/view/books_screen.dart';
+import 'package:ink_review/view/reviews_screen.dart';
+import 'package:ink_review/view/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +14,9 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   final List<Widget> _screens = [
     const HomeContent(),
+    const BooksContent(),
+    const ReviewsContent(),
+    const SettingContent(),
   ];
 
   @override
