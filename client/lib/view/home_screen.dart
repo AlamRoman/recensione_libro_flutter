@@ -152,6 +152,7 @@ class HomeContent extends StatelessWidget {
     );
   }
 
+
   Widget _buildFeatureCard({
     required IconData icon,
     required String title,

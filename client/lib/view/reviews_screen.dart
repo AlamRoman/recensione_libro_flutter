@@ -1,110 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ink_review/view/books_screen.dart';
-import 'package:ink_review/view/home_screen.dart';
-import 'package:ink_review/view/settings_screen.dart';
-
-class ReviewsScreen extends StatefulWidget {
-  const ReviewsScreen({super.key});
-
-  @override
-  State<ReviewsScreen> createState() => _ReviewsScreenState();
-}
-
-class _ReviewsScreenState extends State<ReviewsScreen> {
-  int _currentIndex = 0;
-  final List<Widget> _screens = [
-    const HomeContent(),
-    const BooksContent(),
-    const ReviewsContent(),
-    const SettingContent(),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.deepPurple, Colors.purpleAccent],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-          ),
-          child: AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            title: Row(
-              children: [
-                Image.asset(
-                  '../resources/logo.png',
-                  height: 40,
-                ),
-                const SizedBox(width: 15),
-                const Text(
-                  'Ink Review',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.deepPurple, Colors.purpleAccent],
-          ),
-        ),
-        child: _screens[_currentIndex],
-      ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.deepPurple, Colors.purpleAccent],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.transparent,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white70,
-          elevation: 0,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.menu_book),
-              label: 'Books',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.rate_review),
-              label: 'My Reviews',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class ReviewsContent extends StatelessWidget {
   const ReviewsContent({super.key});
@@ -123,7 +17,7 @@ class ReviewsContent extends StatelessWidget {
                 children: [
                   const Center(
                     child: Text(
-                      'Welcome to Ink Review!',
+                      'My Reviews',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 28,
