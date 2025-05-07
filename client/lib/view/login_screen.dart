@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:ink_review/view/home_screen.dart';
+import 'package:ink_review/view/home.dart';
 import 'package:ink_review/model/global_vars.dart';
 
 class LoginScreen extends StatelessWidget {

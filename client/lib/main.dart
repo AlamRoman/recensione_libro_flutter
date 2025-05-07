@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ink_review/view/home_screen.dart';
+import 'package:ink_review/view/home.dart';
 import "package:ink_review/view/login_screen.dart";
 import 'package:ink_review/view/register_screen.dart';
 
