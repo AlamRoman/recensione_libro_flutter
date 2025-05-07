@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:ink_review/view/home_screen.dart';
+import 'package:ink_review/model/global_vars.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController loginController = TextEditingController();
+    final TextEditingController tokenController = TextEditingController();
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
@@ -60,7 +62,7 @@ class LoginScreen extends StatelessWidget {
                             ],
                           ),
                           child: TextField(
-                            controller: loginController,
+                            controller: tokenController,
                             style: const TextStyle(color: Colors.deepPurple),
                             decoration: InputDecoration(
                               filled: true,
@@ -93,12 +95,44 @@ class LoginScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(15),
                               ),
                             ),
-                            onPressed: () {
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder: (context) => const HomeScreen(),
-                                ),
-                              );
+                            onPressed: () async {
+                              // Login logic
+                              
+                              final enteredToken = tokenController.text.trim();
+
+                              if (enteredToken.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Please enter a token')),
+                                );
+                                return;
+                              }
+
+                              final url = Uri.parse('http://localhost/web_service/ink_review/token/validate/$enteredToken');
+
+                              try {
+                                final response = await http.get(
+                                  url,
+                                  headers: {
+                                    'Content-Type': contentType,
+                                  },
+                                );
+
+                                if (response.statusCode == 200) {
+                                  userToken = enteredToken; 
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Login failed: ${response.reasonPhrase}')),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Error: $e')),
+                                );
+                              }
+
                             },
                             child: Ink(
                               decoration: BoxDecoration(
@@ -206,8 +240,13 @@ class _ContentTypeDropdownState extends State<_ContentTypeDropdown> {
           onChanged: (value) {
             setState(() {
               selected = value!;
-              // Use `selected` as needed
-              print('Selected content type: $selected');
+
+              if (value == "XML") {
+                contentType = "application/xml";
+              }else{
+                contentType = "application/json";
+              }
+              
             });
           },
         ),

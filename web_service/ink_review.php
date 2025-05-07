@@ -1,5 +1,17 @@
 <?php 
 
+    header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Auth-Token");
+    header("Access-Control-Expose-Headers: Auth-Token");
+    header("Access-Control-Max-Age: 3600");
+
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit();
+    }
+
+    header('Content-Type: application/xml');
+
     $hostname = "localhost";
     $username = "root";
     $password = "";
@@ -55,10 +67,6 @@
         return -1;
     }
 
-    //header per flutter
-    header('Access-Control-Allow-Origin: *');
-    header('Access-Control-Allow-Methods: GET,PUT,PATCH,POST,DELETE');
-    header('Access-Control-Allow-Headers: Origin,X-Requested-With,Content-Type,Accept'); 
 
     $CONTENT_TYPE = $_SERVER["CONTENT_TYPE"] ?? "application/xml"; // default content type xml
     $METHOD = $_SERVER['REQUEST_METHOD'];
@@ -168,17 +176,7 @@
                 ];
                 $status_code = 401; // unauthorized
             }
-        /**
-         * Operation: list_user_reviews
-         * 
-         * Returns all reviews associated with a user identified by ID.
-         * 
-         * @param int $id_libro ID of the book to return reviews for
-         * @return array List of user reviews
-         * @response 200 OK
-         * @response 400 Bad Request
-         * @response 401 Unauthorized
-         */
+
         } else if ($OPERATION == "list_user_reviews"){
 
             if ($token !== null && validate_token($token)){
@@ -276,17 +274,13 @@
             }
         
         /**
-         * Operation: get_review_details
+         * Operation: validate_token
          * 
-         * Returns the details of a specified review.
+         * Checks whether a provided token is valid.
          * 
          * @param string $token Token to validate
-         * @param int $id_recensione Id of the review
-         * @return object review details
          * @response 200 OK
          * @response 400 Bad Request
-         * @response 401 Unauthorized
-         * @response 404 Operation not found
          */
         }else if ($OPERATION == "get_review_details"){
 
@@ -336,18 +330,6 @@
                 $status_code = 401; // unauthorized
             }
 
-        /**
-         * Operation: list_all_users
-         * 
-         * Return the list of all the users.
-         * 
-         * @param string $token Token to validate
-         * @return array User list
-         * @response 200 OK
-         * @response 400 Bad Request
-         * @response 401 Unauthorized
-         * @response 404 Operation not found
-         */
         }else if ($OPERATION == "list_all_users"){
 
             if ($token !== null && validate_token($token)){
@@ -372,19 +354,6 @@
                 ];
                 $status_code = 401; // unauthorized
             }
-        /**
-         * Operation: get_user_details
-         * 
-         * Returns the details of a specified user.
-         * 
-         * @param string $token Token to validate
-         * @param int $id_user Id of the user
-         * @return object user details
-         * @response 200 OK
-         * @response 400 Bad Request
-         * @response 401 Unauthorized
-         * @response 404 Operation not found
-         */
         }else if ($OPERATION == "get_user_details"){
 
             if ($token !== null && validate_token($token)){
@@ -432,15 +401,6 @@
                 $status_code = 401; // unauthorized
             }
 
-        /**
-         * Operation: validate_token
-         * 
-         * Checks whether a provided token is valid.
-         * 
-         * @param string $token Token to validate
-         * @response 200 OK
-         * @response 400 Bad Request
-         */
         } else if ($OPERATION == "validate_token"){
 
             if (isset($_GET["token"])) {
@@ -458,7 +418,7 @@
 
                 }else{
 
-                    $status_code = 200; // OK
+                    $status_code = 401; // OK
 
                     $responseData = [
                         "status"  => "error",
@@ -885,18 +845,7 @@
         }
     
     }else if($METHOD == "PATCH") { //update
-        /**
-         * Operation: update_recensione_parzialmente
-         * 
-         * Partially updates (voto, commento) the review.
-         * 
-         * @param string $voto review grade
-         * @param string $commento review comment
-         * @response 200 OK
-         * @response 400 Bad Request
-         * @response 401 Unauthorized
-         * @response 500 Internal Server Error
-         */
+
         if($OPERATION == "update_recensione_parzialmente"){
 
             if ($token !== null && validate_token($token)){
@@ -1251,17 +1200,6 @@
                 $status_code = 401; // unauthorized
             }
 
-        /**
-         * Operation: delete_user_account
-         * 
-         * Delete a user from the system.
-         *
-         *  @param int $id_user ID of the user to delete
-         * @response 200 OK
-         * @response 400 Bad Request
-         * @response 401 Unauthorized
-         * @response 500 Internal Server Error
-         */
         } else if($OPERATION == "delete_user_account"){
 
             if ($token !== null && validate_token($token)){
