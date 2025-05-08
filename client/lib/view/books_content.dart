@@ -52,7 +52,6 @@ class _BooksContentState extends State<BooksContent> {
               ),
             ),
             const SizedBox(height: 10),
-            // Wrap the ListView.builder with Expanded to ensure it takes the remaining space
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),

@@ -39,9 +39,10 @@ class BookController {
 
   List<Libro> _parseXml(String body) {
     final document = XmlDocument.parse(body);
+    print(document);
     final books = <Libro>[];
 
-    for (final element in document.findAllElements('item')) {
+    for (final element in document.findAllElements('Libro')) {
       books.add(Libro(
         id: int.parse(element.findElements('id').single.text),
         titolo: element.findElements('titolo').single.text,
