@@ -10,14 +10,12 @@ RewriteRule ^review/update/([0-9]+)$ ink_review.php?OPERATION=update_recensione&
 RewriteRule ^review/partial_update/([0-9]+)$ ink_review.php?OPERATION=update_recensione_parzialmente [L,QSA]
 RewriteRule ^review/delete/([0-9]+)$ ink_review.php?OPERATION=delete_recensione&id_recensione=$1 [L,QSA]
 
-RewriteRule ^user/details/([0-9]+)$ ink_review.php?OPERATION=get_user_details&id_user=$1 [L,QSA]
-
 RewriteRule ^token/validate/([a-zA-Z0-9]+)$ ink_review.php?OPERATION=validate_token&token=$1 [L,QSA]
 
 # Rewrite standard endpoints
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(list_books|list_user_reviews|list_all_users|register|create_recensione|update_user_details|delete_user_account)$ ink_review.php?OPERATION=$1 [L,QSA]
+RewriteRule ^(get_user_details|list_books|list_user_reviews|list_all_users|register|create_recensione|update_user_details|delete_user_account)$ ink_review.php?OPERATION=$1 [L,QSA]
 
 
 # CORS headers

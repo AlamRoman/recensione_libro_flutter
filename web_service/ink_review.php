@@ -10,8 +10,6 @@
         exit();
     }
 
-    header('Content-Type: application/xml');
-
     $hostname = "localhost";
     $username = "root";
     $password = "";
@@ -68,9 +66,11 @@
     }
 
 
-    $CONTENT_TYPE = $_SERVER["CONTENT_TYPE"] ?? "application/xml"; // default content type xml
+    $CONTENT_TYPE = (str_contains($_SERVER["CONTENT_TYPE"] ?? '', 'xml') ) ? "application/xml" : "application/json";
     $METHOD = $_SERVER['REQUEST_METHOD'];
     $OPERATION = $_GET["OPERATION"] ?? "";
+
+    header("Content-Type: $CONTENT_TYPE");
 
     $headers = getallheaders();
     $token = $headers["Auth-Token"] ?? null; //get the auth token from the header
@@ -358,39 +358,28 @@
 
             if ($token !== null && validate_token($token)){
 
-                if (isset($_GET["id_user"])) {
+                $id_user = get_user_id_by_token($token);
 
-                    $id_user = $_GET["id_user"];
+                $sql = "SELECT * FROM users WHERE id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $id_user);
+                $stmt->execute();
+                $result = $stmt->get_result();
 
-                    $sql = "SELECT * FROM users WHERE id = ?";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("i", $id_user);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
+                if ($result->num_rows > 0) {
 
-                    if ($result->num_rows > 0) {
+                    $user = $result->fetch_assoc();
 
-                        $user = $result->fetch_assoc();
+                    $responseData[] = $user;
 
-                        $responseData[] = $user;
-
-                        $status_code = 200; //OK
-                        
-                    }else{
-                        $responseData = [
-                            "status"  => "error",
-                            "message" => "Utente non trovato"
-                        ];
-                        $status_code = 404;
-                    }
+                    $status_code = 200; //OK
                     
                 }else{
-                    $status_code = 400; // bad request
-
                     $responseData = [
                         "status"  => "error",
-                        "message" => "ID utente non presente nella richiesta"
+                        "message" => "Utente non trovato"
                     ];
+                    $status_code = 404;
                 }
 
             } else{
@@ -470,7 +459,7 @@
             $nome = null;
             $cognome = null;
 
-            if ($CONTENT_TYPE === "application/xml") {// xml data
+            if ($CONTENT_TYPE == "application/xml") {// xml data
 
                 libxml_use_internal_errors(true);
                 $xml = simplexml_load_string($input);
@@ -493,7 +482,7 @@
                     exit;
                 }
                 
-            }else if($CONTENT_TYPE === "application/json"){ //json data
+            }else if($CONTENT_TYPE == "application/json"){ //json data
                 
                 $data = json_decode($input, true);
 
@@ -546,7 +535,7 @@
                 } catch (mysqli_sql_exception $e) {
                     $responseData = [
                         "status"  => "error",
-                        "message" => "Errore durante la registrazione dell'utente"
+                        "message" => "Errore durante la registrazione dell'utente -$nome- -$cognome - $CONTENT_TYPE -". $_SERVER["CONTENT_TYPE"]
                     ];
                     $status_code = 500; // internal server error
                 }
