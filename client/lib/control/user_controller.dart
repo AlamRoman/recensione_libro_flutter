@@ -62,7 +62,6 @@ class UserController {
       body: body,
     );
 
-    // Handle response parsing
     final responseContentType = response.headers['content-type']?.split(';').first;
     
     if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -82,8 +81,23 @@ class UserController {
   }
 
   Users _parseJson(String body) {
-    final Map<String, dynamic> decoded = jsonDecode(body);
-    return Users.fromJson(decoded);
+    dynamic decoded = jsonDecode(body);
+    
+    Map<String, dynamic> userData = {};
+    
+    if (decoded is List) {
+      userData = decoded.first as Map<String, dynamic>;
+    } else if (decoded is Map) {
+      userData = decoded['user'] ?? decoded;
+    }
+    
+    return Users(
+      id: userData['id'] as int? ?? 0,
+      username: userData['username'] as String? ?? '',
+      nome: userData['nome'] as String?,
+      cognome: userData['cognome'] as String?,
+      token: userData['token'] as String?,
+    );
   }
 
   Users _parseXml(String body) {
