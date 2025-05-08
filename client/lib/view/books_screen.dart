@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:ink_review/view/book_details_screen.dart';
 import 'package:ink_review/view/home_content.dart';
 import 'package:ink_review/view/reviews_screen.dart';
 import 'package:ink_review/view/settings_content.dart';
 import '../control/books_controller.dart';
 import '../../model/libro.dart';
-
 
 class BooksScreen extends StatefulWidget {
   const BooksScreen({super.key});
@@ -130,11 +130,10 @@ class _BooksContentState extends State<BooksContent> {
     return FutureBuilder<List<Libro>>(
       future: _booksFuture,
       builder: (context, snapshot) {
-
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white)));
+          return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.white)));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('No books found', style: TextStyle(color: Colors.white)));
         }
@@ -165,11 +164,46 @@ class _BooksContentState extends State<BooksContent> {
                 itemCount: books.length,
                 itemBuilder: (context, index) {
                   final book = books[index];
-                  return Card(
-                    color: Colors.white.withOpacity(0.1),
-                    child: ListTile(
-                      title: Text(book.titolo, style: const TextStyle(color: Colors.white)),
-                      subtitle: Text(book.autore ?? 'Unknown Author', style: TextStyle(color: Colors.white70)),
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookDetailsScreen(book: book),
+                        ),
+                      );
+                    },
+                    splashColor: Colors.purple.withOpacity(0.3),
+                    highlightColor: Colors.deepPurple.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(4),
+                    child: Card(
+                      color: Colors.white.withOpacity(0.1),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
+                        title: Text(
+                          book.titolo,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        subtitle: Text(
+                          book.autore ?? 'Unknown Author',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 14,
+                          ),
+                        ),
+                        trailing: Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.white.withOpacity(0.6),
+                          size: 16,
+                        ),
+                      ),
                     ),
                   );
                 },

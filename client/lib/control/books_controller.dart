@@ -50,9 +50,7 @@ class BookController {
         descrizione: element.getElement('descrizione')?.text,
         isbn: element.findElements('isbn').single.text,
         genere: element.getElement('genere')?.text,
-        anno_pubblicazione: element.getElement('anno_pubblicazione') != null
-            ? DateTime.tryParse(element.getElement('anno_pubblicazione')!.text)
-            : null,
+        anno_pubblicazione: element.getElement('anno_pubblicazione')?.text,
       ));
     }
 

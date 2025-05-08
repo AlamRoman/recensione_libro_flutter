@@ -10,9 +10,7 @@ class Libro {
   String? descrizione;
   String isbn;
   String? genere;
-
-  @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
-  DateTime? anno_pubblicazione;
+  String? anno_pubblicazione;
 
   Libro({
     required this.id,
