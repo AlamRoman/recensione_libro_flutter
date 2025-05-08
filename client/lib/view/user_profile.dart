@@ -69,8 +69,14 @@ class _UserScreenState extends State<UserProfileScreen> {
           ),
         ),
         child: (_inUserPage)
-            ? const UserProfileContent()
-            : _screens[_currentIndex],
+            ? UserProfileContent(
+            onExitProfile: () {
+              setState(() {
+                _inUserPage = false;
+              });
+            },
+          )
+      : _screens[_currentIndex],
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
@@ -116,7 +122,9 @@ class _UserScreenState extends State<UserProfileScreen> {
 }
 
 class UserProfileContent extends StatefulWidget {
-  const UserProfileContent({super.key});
+  final VoidCallback onExitProfile;
+
+  const UserProfileContent({super.key, required this.onExitProfile});
 
   @override
   State<UserProfileContent> createState() => _UserProfileContentState();
@@ -200,6 +208,18 @@ class _UserProfileContentState extends State<UserProfileContent> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back, 
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                          onPressed: () {
+                            widget.onExitProfile();
+                          },
+                        ),
+                      ),
                       const Center(
                         child: Text(
                           'User Profile',
