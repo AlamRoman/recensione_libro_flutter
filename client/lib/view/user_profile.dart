@@ -4,14 +4,14 @@ import 'package:ink_review/view/home_content.dart';
 import 'package:ink_review/view/reviews_screen.dart';
 import 'package:ink_review/view/settings_content.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class UserProfileScreen extends StatefulWidget {
+  const UserProfileScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<UserProfileScreen> createState() => _UserScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _UserScreenState extends State<UserProfileScreen> {
   int _currentIndex = 0;
   final List<Widget> _screens = [
     const HomeContent(),
@@ -65,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
             colors: [Colors.deepPurple, Colors.purpleAccent],
           ),
         ),
-        child: _screens[_currentIndex],
+        child: UserProfileContent(),
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
@@ -105,4 +105,44 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
+
+
+class UserProfileContent extends StatelessWidget {
+  const UserProfileContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Center(
+                    child: Text(
+                      'User Profile',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  const SizedBox(height: 30),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 }

@@ -30,9 +30,8 @@ class Libro {
   static DateTime? _fromJsonDate(String? date) {
     if (date == null) return null;
     try {
-      return DateTime.parse(date); // expects 'yyyy-MM-dd' or ISO 8601
+      return DateTime.parse(date); 
     } catch (_) {
-      // Try other formats if needed
       return null;
     }
   }
