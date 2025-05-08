@@ -39,7 +39,7 @@ class BookController {
 
   List<Libro> _parseXml(String body) {
     final document = XmlDocument.parse(body);
-    print(document);
+
     final books = <Libro>[];
 
     for (final element in document.findAllElements('Libro')) {
