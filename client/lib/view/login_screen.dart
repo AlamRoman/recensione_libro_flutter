@@ -214,7 +214,7 @@ class _ContentTypeDropdown extends StatefulWidget {
 }
 
 class _ContentTypeDropdownState extends State<_ContentTypeDropdown> {
-  String selected = 'XML';
+  String selected = globalContentType;
 
   @override
   Widget build(BuildContext context) {
@@ -233,24 +233,18 @@ class _ContentTypeDropdownState extends State<_ContentTypeDropdown> {
           dropdownColor: Colors.white,
           items: const [
             DropdownMenuItem(
-              value: 'XML',
+              value: 'application/xml',
               child: Text('XML'),
             ),
             DropdownMenuItem(
-              value: 'JSON',
+              value: 'application/json',
               child: Text('JSON'),
             ),
           ],
           onChanged: (value) {
             setState(() {
               selected = value!;
-
-              if (value == "XML") {
-                globalContentType = "application/xml";
-              }else{
-                globalContentType = "application/json";
-              }
-              
+              globalContentType = value;
             });
           },
         ),
