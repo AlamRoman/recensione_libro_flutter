@@ -81,18 +81,32 @@ class ReviewController {
     required String commento,
   }) async {
     final uri = Uri.parse('$apiUrl/review/update/$idRecensione');
-    final body = jsonEncode({
-      'id_recensione': idRecensione, 
-      'voto': voto,
-      'commento': commento,
-    });
-    final response = await http.put(uri, headers: {
+    var body;
+    final headers = {
       'Auth-Token': userToken,
       'Content-Type': globalContentType,
-    }, body: body);
+    };
 
+    if (globalContentType == 'application/json') {
+      body = jsonEncode({
+        'id_recensione': idRecensione,
+        'voto': voto,
+        'commento': commento,
+      });
+    } else if (globalContentType == 'application/xml') {
+      final builder = XmlBuilder();
+      builder.processing('xml', 'version="1.0"');
+      builder.element('request', nest: () {
+        builder.element('id_recensione', nest: idRecensione);
+        builder.element('voto', nest: voto);
+        builder.element('commento', nest: commento);
+      });
+      body = builder.buildDocument().toXmlString();
+    }
+
+    final response = await http.put(uri, headers: headers, body: body);
     if (response.statusCode != 200) {
-      throw Exception('Failed to update review: ${response.statusCode}');
+      throw await _parseError(response, 'Failed to update review');
     }
   }
 
@@ -103,19 +117,68 @@ class ReviewController {
     String? commento,
   }) async {
     final uri = Uri.parse('$apiUrl/review/partial_update/$idRecensione');
-    final bodyMap = <String, dynamic>{
-      'id_recensione': idRecensione,
-      if (voto     != null) 'voto': voto,
-      if (commento != null) 'commento': commento,
-    };
-    final response = await http.patch(uri, headers: {
+    final headers = {
       'Auth-Token': userToken,
       'Content-Type': globalContentType,
-    }, body: jsonEncode(bodyMap));
+    };
+    var body;
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to patch review: ${response.statusCode}');
+    final payload = {
+      'id_recensione': idRecensione,
+      if (voto != null) 'voto': voto,
+      if (commento != null) 'commento': commento,
+    };
+
+    if (globalContentType == 'application/json') {
+      body = jsonEncode(payload);
+    } else if (globalContentType == 'application/xml') {
+      final builder = XmlBuilder();
+      builder.processing('xml', 'version="1.0"');
+      builder.element('request', nest: () {
+        payload.forEach((key, value) {
+          if (value != null) builder.element(key, nest: value);
+        });
+      });
+      body = builder.buildDocument().toXmlString();
     }
+
+    final response = await http.patch(uri, headers: headers, body: body);
+    if (response.statusCode != 200) {
+      throw await _parseError(response, 'Failed to patch review');
+    }
+  }
+
+  static Future<void> deleteReview({
+    required String apiUrl,
+    required int idRecensione,
+  }) async {
+    final uri = Uri.parse('$apiUrl/review/delete/$idRecensione');
+    final headers = {
+      'Auth-Token': userToken,
+      'Content-Type': globalContentType,
+    };
+
+    final response = await http.delete(uri, headers: headers);
+    if (response.statusCode != 200) {
+      throw await _parseError(response, 'Failed to delete review');
+    }
+  }
+
+  static Future<Exception> _parseError(http.Response response, String defaultMessage) async {
+    final contentType = response.headers['content-type'] ?? '';
+    String message = defaultMessage;
+
+    try {
+      if (contentType.contains('application/json')) {
+        final error = jsonDecode(response.body);
+        message = error['message'] ?? error.toString();
+      } else if (contentType.contains('xml')) {
+        final document = XmlDocument.parse(response.body);
+        message = document.findAllElements('message').first.text;
+      }
+    } catch (_) {}
+
+    return Exception('$message (HTTP ${response.statusCode})');
   }
 
 }

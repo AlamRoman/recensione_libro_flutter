@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:ink_review/control/review_controller.dart';
 import 'package:ink_review/model/recensione.dart';
@@ -34,13 +33,23 @@ class _ReviewDetailScreenState extends State<ReviewDetailScreen> {
   void _save() async {
     final newVoto = double.tryParse(_votoController.text);
     final newCommento = _commentoController.text;
+    
     if (newVoto == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid grade')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid grade')),
+      );
       return;
     }
 
     final bool votoChanged = newVoto != _review.voto;
     final bool commentChanged = newCommento != (_review.commento ?? '');
+
+    if (!votoChanged && !commentChanged) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No changes detected')),
+      );
+      return;
+    }
 
     try {
       if (votoChanged && commentChanged) {
@@ -50,7 +59,7 @@ class _ReviewDetailScreenState extends State<ReviewDetailScreen> {
           voto: newVoto,
           commento: newCommento,
         );
-      } else if (votoChanged || commentChanged) {
+      } else {
         await ReviewController.patchReview(
           apiUrl: 'http://localhost/web_service/ink_review',
           idRecensione: _review.id,
@@ -65,38 +74,46 @@ class _ReviewDetailScreenState extends State<ReviewDetailScreen> {
         _review.data_ultima_modifica = DateTime.now();
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Review Updated!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Review updated successfully!')),
+      );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
+
+  void _deleteReview() async {
+    try {
+      await ReviewController.deleteReview(
+        apiUrl: 'http://localhost/web_service/ink_review',
+        idRecensione: _review.id,
+      );
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Review deleted successfully!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.deepPurple, Colors.purpleAccent],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-          ),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            title: Row(
-              children: [
-                Image.asset('../resources/logo.png', height: 40),
-                const SizedBox(width: 15),
-                const Text('Ink Review', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
+        title: const Text(
+          'Review Details',
+          style: TextStyle(color: Colors.white, fontSize: 20),
+        ),
+        backgroundColor: Colors.deepPurple,
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -111,36 +128,45 @@ class _ReviewDetailScreenState extends State<ReviewDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _fielContainer('ID Recensione', _review.id.toString()),
-              const SizedBox(height: 8),
-              _fielContainer('ID Libro', _review.id_libro.toString()),
-              const SizedBox(height: 8),
-              _buildInputField(controller: _votoController, hint: 'Voto', icon: Icons.star),
-              const SizedBox(height: 8),
-              _buildInputField(controller: _commentoController, hint: 'Commento', icon: Icons.comment),
-              const SizedBox(height: 8),
-              _fielContainer('Ultima modifica', _review.data_ultima_modifica.toString()),
-              const Spacer(),
+              const SizedBox(height: 20),
+              _buildLockedField('Review ID', _review.id.toString()),
+              const SizedBox(height: 12),
+              _buildLockedField('Book ID', _review.id_libro.toString()),
+              const SizedBox(height: 12),
+              _buildEditableField(
+                controller: _votoController,
+                hint: 'Rating',
+                icon: Icons.star,
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 12),
+              _buildEditableField(
+                controller: _commentoController,
+                hint: 'Comment',
+                icon: Icons.comment,
+                maxLines: 3,
+              ),
+              const SizedBox(height: 12),
+              _buildLockedField(
+                'Last Modified',
+                _review.data_ultima_modifica?.toString() ?? 'Not available',
+              ),
+              const SizedBox(height: 50),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    ),
-                    child: const Text('Back', style: TextStyle(color: Colors.white)),
+                  _buildActionButton(
+                    text: 'Delete',
+                    icon: Icons.delete,
+                    color: Colors.red,
+                    onPressed: _deleteReview,
                   ),
-                  ElevatedButton(
+                  const SizedBox(width: 20),
+                  _buildActionButton(
+                    text: 'Save',
+                    icon: Icons.save,
+                    color: Colors.deepPurple,
                     onPressed: _save,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    ),
-                    child: const Text('Save', style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
@@ -151,55 +177,68 @@ class _ReviewDetailScreenState extends State<ReviewDetailScreen> {
     );
   }
 
-  Widget _fielContainer(String title, String value) {
-    return Card(
-      color: Colors.white.withOpacity(0.1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: const TextStyle(color: Colors.white70)),
-            const SizedBox(height: 4),
-            Text(value, style: const TextStyle(color: Colors.white, fontSize: 16)),
-          ],
+  Widget _buildLockedField(String label, String value) {
+    return TextFormField(
+      readOnly: true,
+      initialValue: value,
+      style: const TextStyle(color: Colors.white70),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white70),
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.1),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
+        suffixIcon: const Icon(Icons.lock_outline, color: Colors.white54),
+        contentPadding: const EdgeInsets.all(16),
       ),
     );
   }
 
-  Widget _buildInputField({
+  Widget _buildEditableField({
     required TextEditingController controller,
     required String hint,
     required IconData icon,
+    TextInputType? keyboardType,
+    int maxLines = 1,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.deepPurple,
-            blurRadius: 12,
-            offset: Offset(0, 6),
-          ),
-        ],
+    return TextFormField(
+      controller: controller,
+      style: const TextStyle(color: Colors.white),
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: hint,
+        labelStyle: const TextStyle(color: Colors.white70),
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.1),
+        prefixIcon: Icon(icon, color: Colors.white70),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.all(16),
       ),
-      child: TextFormField(
-        controller: controller,
-        style: const TextStyle(color: Colors.deepPurple),
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: Colors.transparent,
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.grey.shade400),
-          prefixIcon: Icon(icon, color: Colors.deepPurple.shade300),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+    );
+  }
+
+  Widget _buildActionButton({
+    required String text,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton.icon(
+      icon: Icon(icon, size: 20, color: Colors.white),
+      label: Text(text, style: TextStyle(color: Colors.white)),
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
     );
