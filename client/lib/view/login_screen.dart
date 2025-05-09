@@ -100,10 +100,6 @@ class LoginScreen extends StatelessWidget {
                               
                               var enteredToken = tokenController.text.trim();
 
-
-                              //TODO : remove this, test only
-                              enteredToken = "7123a062ef08af773b5cff8ed91081d1dcc1d75c23cf99fbf72cacc8bb0aef12";
-
                               if (enteredToken.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text('Please enter a token')),
