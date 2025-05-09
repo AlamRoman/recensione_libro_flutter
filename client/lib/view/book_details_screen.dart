@@ -237,7 +237,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ElevatedButton(
             onPressed: _submitReview,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurpleAccent,
+              backgroundColor: Colors.deepPurple,
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -280,11 +280,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       return;
     }
 
-    // Here you would typically send the review to your backend
     print('Submitted rating: $rating');
     print('Submitted review: ${_reviewController.text}');
 
-    // Clear inputs
     _ratingController.clear();
     _reviewController.clear();
 

@@ -34,8 +34,26 @@ class ReviewController {
   }
 
   List<Recensione> _parseJson(String body) {
-    final List<dynamic> decoded = jsonDecode(body);
-    return decoded.map((item) => Recensione.fromJson(item as Map<String, dynamic>)).toList();
+    final decoded = jsonDecode(body);
+
+    List<dynamic> reviewsData = [];
+    if (decoded is List) {
+      reviewsData = decoded;
+    } else if (decoded is Map<String, dynamic>) {
+      if (decoded.containsKey('reviews')) {
+        reviewsData = decoded['reviews'];
+      } else if (decoded.containsKey('data')) {
+        reviewsData = decoded['data'];
+      } else {
+        throw FormatException('Unexpected JSON format');
+      }
+    } else {
+      throw FormatException('Root JSON element must be list or map');
+    }
+
+    return reviewsData.map<Recensione>((item) {
+      return Recensione.fromJson(item as Map<String, dynamic>);
+    }).toList();
   }
 
   List<Recensione> _parseXml(String body) {

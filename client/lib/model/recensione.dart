@@ -7,7 +7,13 @@ class Recensione {
   int id;
   int id_user;
   int id_libro;
+  
+  @JsonKey(
+    fromJson: _parseVoto,
+    toJson: _encodeVoto,
+  )
   double voto;
+  
   String? commento;
 
   @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
@@ -19,13 +25,21 @@ class Recensione {
     required this.id_user,
     required this.voto,
     this.commento,
-    required this.data_ultima_modifica,
+    this.data_ultima_modifica,
   });
 
   factory Recensione.fromJson(Map<String, dynamic> json) =>
       _$RecensioneFromJson(json);
 
   Map<String, dynamic> toJson() => _$RecensioneToJson(this);
+
+  static double _parseVoto(dynamic value) {
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+  static dynamic _encodeVoto(double voto) => voto;
 
   static DateTime? _fromJsonDate(String? date) {
     if (date == null) return null;
