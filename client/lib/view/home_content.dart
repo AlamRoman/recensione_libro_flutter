@@ -45,7 +45,7 @@ class HomeContent extends StatelessWidget {
                   _buildFeatureCard(
                     icon: Icons.reviews,
                     title: 'Review System',
-                    description: 'Create and manage your book reviews',
+                    description: 'Manage your book reviews',
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,

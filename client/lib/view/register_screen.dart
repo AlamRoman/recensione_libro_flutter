@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:ink_review/model/global_vars.dart';
 import 'package:xml/xml.dart';
+import 'package:flutter/services.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -16,7 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController surnameController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  String? authToken;
+  String? authToken = "";
 
   Future<void> registerUser() async {
     if (nameController.text.isEmpty || 
@@ -199,25 +200,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                       ),
-                      if (authToken != null) ...[
-                        const SizedBox(height: 25),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(15),
-                          decoration: BoxDecoration(
-                            color: Colors.purple,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            'Your Auth Token:\n$authToken',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
+                      if (authToken != null && authToken != "") ...[
+                            const SizedBox(height: 25),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(15),
+                              decoration: BoxDecoration(
+                                color: Colors.purple,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Your Auth Token:\n$authToken',
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  IconButton(
+                                    icon: const Icon(Icons.copy, color: Colors.white),
+                                    onPressed: () {
+                                      if (authToken != null) {
+                                        Clipboard.setData(ClipboardData(text: authToken!));
+                                      }
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Auth token copied to clipboard')),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ]
+                          ]
+
                     ],
                   ),
                 ),
