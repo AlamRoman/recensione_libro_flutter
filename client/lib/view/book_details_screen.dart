@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ink_review/control/review_controller.dart';
 import 'package:ink_review/model/libro.dart';
 
 class BookDetailsScreen extends StatefulWidget {
@@ -257,7 +258,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     );
   }
 
-  void _submitReview() {
+
+  void _submitReview() async {
     final rating = int.tryParse(_ratingController.text);
     
     if (rating == null || rating < 1 || rating > 10) {
@@ -280,18 +282,31 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       return;
     }
 
-    print('Submitted rating: $rating');
-    print('Submitted review: ${_reviewController.text}');
+    try {
+      await ReviewController.createReview(
+        apiUrl: "http://localhost/web_service/ink_review",
+        idLibro: widget.book.id,
+        voto: rating.toDouble(),
+        commento: _reviewController.text,
+      );
 
-    _ratingController.clear();
-    _reviewController.clear();
+      _ratingController.clear();
+      _reviewController.clear();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Review submitted successfully!'),
-        backgroundColor: Colors.green,
-      ),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Review submitted successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error submitting review: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }
 

@@ -74,6 +74,45 @@ class ReviewController {
     return reviews;
   }
 
+  static Future<void> createReview({
+    required String apiUrl,
+    required int idLibro,
+    required double voto,
+    required String commento,
+  }) async {
+    final uri = Uri.parse('$apiUrl/create_recensione');
+    var body;
+    final headers = {
+      'Auth-Token': userToken,
+      'Content-Type': globalContentType,
+    };
+
+    if (globalContentType == 'application/json') {
+      body = jsonEncode({
+        'id_libro': idLibro,
+        'voto': voto,
+        'commento': commento,
+      });
+    } else if (globalContentType == 'application/xml') {
+      final builder = XmlBuilder();
+      builder.processing('xml', 'version="1.0"');
+      builder.element('request', nest: () {
+        builder.element('id_libro', nest: idLibro);
+        builder.element('voto', nest: voto);
+        builder.element('commento', nest: commento);
+      });
+      body = builder.buildDocument().toXmlString();
+    }
+
+    final response = await http.post(uri, headers: headers, body: body);
+
+    if (response.statusCode != 200) {
+      final error = await _parseError(response, 'Failed to create review');
+      throw error;
+    }
+
+  }
+
   static Future<void> updateReview({
     required String apiUrl,
     required int idRecensione,
@@ -136,7 +175,7 @@ class ReviewController {
       builder.processing('xml', 'version="1.0"');
       builder.element('request', nest: () {
         payload.forEach((key, value) {
-          if (value != null) builder.element(key, nest: value);
+          builder.element(key, nest: value);
         });
       });
       body = builder.buildDocument().toXmlString();
