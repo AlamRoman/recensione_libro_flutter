@@ -14,11 +14,11 @@ class SettingContent extends StatelessWidget {
           child: ConstrainedBox(
             constraints: BoxConstraints(minHeight: constraints.maxHeight),
             child: Padding(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
+                  const Center(
                     child: Text(
                       'Settings',
                       style: TextStyle(
@@ -55,7 +55,7 @@ class SettingContent extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.logout, color: Colors.white, size: 40),
+                        const Icon(Icons.logout, color: Colors.white, size: 40),
                         const SizedBox(width: 20),
                         Expanded(
                           child: TextButton(
@@ -112,7 +112,7 @@ class SettingContent extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
