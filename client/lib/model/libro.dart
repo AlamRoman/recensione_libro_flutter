@@ -25,14 +25,5 @@ class Libro {
   factory Libro.fromJson(Map<String, dynamic> json) => _$LibroFromJson(json);
   Map<String, dynamic> toJson() => _$LibroToJson(this);
 
-  static DateTime? _fromJsonDate(String? date) {
-    if (date == null) return null;
-    try {
-      return DateTime.parse(date); 
-    } catch (_) {
-      return null;
-    }
-  }
-
-  static String? _toJsonDate(DateTime? date) => date?.toIso8601String();
+  
 }
